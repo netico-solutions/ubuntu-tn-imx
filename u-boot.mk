@@ -5,8 +5,8 @@
 
 include common.mk
 
-UBOOT_COMMIT := 510b22fcbf369f6ac08c349981333f7cf6f2a9cc
-UBOOT_ARCHIVE := https://github.com/TechNexion/u-boot-tn-imx/archive/$(UBOOT_COMMIT).tar.gz
+UBOOT_COMMIT := 3930a84e3a765be1a4e0fad2f42c027daaf1b816
+UBOOT_ARCHIVE := https://github.com/netico-solutions/u-boot-tn-imx/archive/$(UBOOT_COMMIT).tar.gz
 
 all: build
 
@@ -19,7 +19,14 @@ distclean: clean
 	rm -rf $(wildcard $(UBOOT_DIR/u-boot-tn-imx))
 
 build: src
-ifeq ($(PLATFORM),pico-imx6)
+	#$(info PLATFORM is $(PLATFORM))
+	#edm-g-imx8mp_defconfig
+ifeq ($(PLATFORM),edm-g-imx8mp)
+	$(eval UBOOT_DEFCONFIG := edm-g-imx8mp_defconfig)
+	$(eval ARCH := arm)
+	$(eval CC := /home/lazar/workspace/mx8/tech-nexion/gcc-linaro-6.4.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-)
+	$(eval ATF_OPTION := imx8mp-edm-g)
+else ifeq ($(PLATFORM),pico-imx6)
 	$(eval UBOOT_DEFCONFIG := pico-imx6_spl_defconfig)
 	$(eval ARCH := arm)
 	$(eval CC := arm-linux-gnueabi-)
@@ -60,9 +67,12 @@ else ifeq ($(PLATFORM),tc1010-imx6)
 	$(eval ARCH := arm)
 	$(eval CC := arm-linux-gnueabi-)
 endif
-
-	$(MAKE) ARCH=arm CROSS_COMPILE=${CC} -C $(UBOOT_DIR)/u-boot-tn-imx $(UBOOT_DEFCONFIG)
-	$(MAKE) ARCH=arm CROSS_COMPILE=${CC} -C $(UBOOT_DIR)/u-boot-tn-imx -j$(CPUS) all
+	$(info PLATFORM is $(PLATFORM))
+	$(info UBOOT_DEFCONFIG is $(UBOOT_DEFCONFIG))
+	$(info ARCH is $(ARCH))
+	$(info CC is $(CC))
+	$(MAKE) ARCH=$(ARCH) CROSS_COMPILE=${CC} -C $(UBOOT_DIR)/u-boot-tn-imx $(UBOOT_DEFCONFIG)
+	$(MAKE) ARCH=$(ARCH) CROSS_COMPILE=${CC} -C $(UBOOT_DIR)/u-boot-tn-imx -j$(CPUS) all
 
 ifeq ($(PLATFORM),pico-imx8mm)
 	cd $(UBOOT_DIR)/u-boot-tn-imx; yes | ARCH=$(ARCH) CROSS_COMPILE=$(CC) ./install_uboot_imx8.sh -b imx8mm-pico-pi.dtb -b imx8mm-pico-wizard.dtb -d /dev/null > /dev/null; cd -
@@ -81,9 +91,12 @@ endif
 src:
 	mkdir -p $(UBOOT_DIR)
 	if [ ! -f $(UBOOT_DIR)/u-boot-tn-imx/Makefile ] ; then \
-		curl -L $(UBOOT_ARCHIVE) | tar xz && \
-		mv u-boot-tn-imx-* $(UBOOT_DIR)/u-boot-tn-imx ; \
+		cd $(UBOOT_DIR) && \
+		git clone https://github.com/netico-solutions/u-boot-tn-imx.git && \
+		cd - ; \
 	fi
+	cp firmware-imx-7.9/firmware/hdmi/cadence/signed_hdmi_imx8m.bin $(UBOOT_DIR)/u-boot-tn-imx/
+	cp firmware-imx-7.9/firmware/ddr/synopsys/lpddr4*.bin $(UBOOT_DIR)/u-boot-tn-imx/
 
 u-boot: $(UBOOT_BIN)
 
