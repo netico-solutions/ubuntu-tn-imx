@@ -268,7 +268,4 @@ fi
 setup_platform
 print_settings
 install_firmware
-#install_uboot_dtb
-#generate_imx_boot
-#flash_imx_boot
 

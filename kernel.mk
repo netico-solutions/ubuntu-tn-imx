@@ -5,11 +5,17 @@
 
 include common.mk
 
-# tn-imx_5.4.70_2.3.0-next branch
+# tn-imx_5.4.70_2.3.0-next-netico is the default branch we use
 KERNEL_COMMIT  := a43c5db21a5f17b9f13e94fc7814697fc48b981d
+KERNEL_GIT     := git@github.com:netico-solutions/linux-tn-imx.git
 KERNEL_ARCHIVE := https://github.com/TechNexion/linux-tn-imx/archive/$(KERNEL_COMMIT).tar.gz
 
-ifeq ($(PLATFORM),pico-imx6)
+ifeq ($(PLATFORM),edm-g-imx8mp)
+KERNEL_DEFCONFIG := tn_imx8_defconfig
+$(eval ARCH := arm64)
+$(eval CC := aarch64-linux-gnu-)
+$(eval ATF_OPTION := imx8mp-edm-g)
+else ifeq ($(PLATFORM),pico-imx6)
 KERNEL_DEFCONFIG := tn_imx_defconfig
 $(eval ARCH := arm)
 $(eval CC := arm-linux-gnueabi-)
@@ -68,7 +74,7 @@ distclean: clean
 
 build: src
 	echo CONFIG_DRM_LEGACY=y >> $(KERNEL_DIR)/linux-tn-imx/arch/arm/configs/$(KERNEL_DEFCONFIG)
-	echo CONFIG_DRM_VIVANTE=y >> $(KERNEL_DIR)/linux-tn-imx/arch/arm/configs/$(KERNEL_DEFCONFIG)
+	echo CONFIG_DRM_VIVANTE=y >> $(KERNEL_DIR)/linux-tn-imx/arch/${ARCH}/configs/$(KERNEL_DEFCONFIG)
 	$(MAKE) ARCH=${ARCH} CROSS_COMPILE=${CC} -C $(KERNEL_DIR)/linux-tn-imx $(KERNEL_DEFCONFIG)
 	$(MAKE) ARCH=${ARCH} CROSS_COMPILE=${CC} -C $(KERNEL_DIR)/linux-tn-imx -j$(CPUS) all
 	$(MAKE) ARCH=${ARCH} CROSS_COMPILE=${CC} -C $(KERNEL_DIR)/linux-tn-imx -j$(CPUS) dtbs
@@ -84,10 +90,12 @@ build: src
 src:
 	mkdir -p $(KERNEL_DIR)
 	if [ ! -f $(KERNEL_DIR)/linux-tn-imx/Makefile ] ; then \
-		curl -L $(KERNEL_ARCHIVE) | tar xz && \
-		mv linux-tn-imx* $(KERNEL_DIR)/linux-tn-imx ; \
+		echo "${QCACLD_ARCHIVE}" \
 		curl -L $(QCACLD_ARCHIVE) | tar xz && \
-		mv qcacld-2.0* $(KERNEL_DIR)/qcacld-2.0 ; \
+		mv qcacld-2.0* $(KERNEL_DIR)/qcacld-2.0 \
+		cd $(KERNEL_DIR) && \
+		git clone ${KERNEL_GIT} && \
+		cd - ; \
 	fi
 
 .PHONY: build
