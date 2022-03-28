@@ -24,8 +24,10 @@ build: src
 ifeq ($(PLATFORM),edm-g-imx8mp)
 	$(eval UBOOT_DEFCONFIG := edm-g-imx8mp_defconfig)
 	$(eval ARCH := arm)
-	$(eval CC := /home/lazar/workspace/mx8/tech-nexion/gcc-linaro-6.4.1-2017.11-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-)
+	$(eval CC := aarch64-linux-gnu-)
 	$(eval ATF_OPTION := imx8mp-edm-g)
+	# Before compiling U-boot, install NXP imx8m firmware
+	yes | ARCH=$(ARCH) CROSS_COMPILE=$(CC) ./install_uboot_imx8_firmware.sh -b $(ATF_OPTION).dtb -d /dev/null
 else ifeq ($(PLATFORM),pico-imx6)
 	$(eval UBOOT_DEFCONFIG := pico-imx6_spl_defconfig)
 	$(eval ARCH := arm)
@@ -79,7 +81,7 @@ ifeq ($(PLATFORM),pico-imx8mm)
 else ifeq ($(PLATFORM),axon-e-imx8mp)
 	cd $(UBOOT_DIR)/u-boot-tn-imx; yes | ARCH=$(ARCH) CROSS_COMPILE=$(CC) ./install_uboot_imx8.sh -b $(ATF_OPTION).dtb -d /dev/null > /dev/null; cd -
 else ifeq ($(PLATFORM),edm-g-imx8mp)
-	cd $(UBOOT_DIR)/u-boot-tn-imx; yes | ARCH=$(ARCH) CROSS_COMPILE=$(CC) ./install_uboot_imx8.sh -b $(ATF_OPTION).dtb -d /dev/null > /dev/null; cd -
+	cd $(UBOOT_DIR)/u-boot-tn-imx; yes | ARCH=$(ARCH) CROSS_COMPILE=$(CC) ./install_uboot_imx8.sh -b $(ATF_OPTION).dtb -d /dev/null; cd -
 else ifeq ($(PLATFORM),edm-g-imx8mm)
 	cd $(UBOOT_DIR)/u-boot-tn-imx; yes | ARCH=$(ARCH) CROSS_COMPILE=$(CC) ./install_uboot_imx8.sh -b $(ATF_OPTION).dtb -d /dev/null > /dev/null; cd -
 else ifeq ($(PLATFORM),edm-imx8m)
@@ -95,8 +97,8 @@ src:
 		git clone https://github.com/netico-solutions/u-boot-tn-imx.git && \
 		cd - ; \
 	fi
-	cp firmware-imx-7.9/firmware/hdmi/cadence/signed_hdmi_imx8m.bin $(UBOOT_DIR)/u-boot-tn-imx/
-	cp firmware-imx-7.9/firmware/ddr/synopsys/lpddr4*.bin $(UBOOT_DIR)/u-boot-tn-imx/
+	#cp firmware-imx-7.9/firmware/hdmi/cadence/signed_hdmi_imx8m.bin $(UBOOT_DIR)/u-boot-tn-imx/
+	#cp firmware-imx-7.9/firmware/ddr/synopsys/lpddr4*.bin $(UBOOT_DIR)/u-boot-tn-imx/
 
 u-boot: $(UBOOT_BIN)
 

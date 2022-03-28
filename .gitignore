@@ -1,0 +1,4 @@
+build.log
+firmware_imx8/
+imx-mkimage/
+output/
