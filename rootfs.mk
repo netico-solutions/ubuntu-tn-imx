@@ -15,7 +15,9 @@ distclean: clean
 
 build-rootfs: src
 
-ifeq ($(PLATFORM),pico-imx6)
+ifeq ($(PLATFORM),edm-g-imx8mp)
+	$(eval TARGET := edm-g-imx8mp)
+else ifeq ($(PLATFORM),pico-imx6)
 	$(eval TARGET := pico-imx6)
 else ifeq ($(PLATFORM),edm-imx6)
 	$(eval TARGET := edm-imx6)

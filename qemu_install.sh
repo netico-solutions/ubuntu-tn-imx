@@ -6,8 +6,8 @@ COL_NORMAL="\e[m"
 echo "${COL_GREEN}Technexion customized minimal rootfs staring...${COL_NORMAL}"
 echo "${COL_GREEN}creating ubuntu sudoer account...${COL_NORMAL}"
 cd /
-echo technexion > /etc/hostname
-echo -e "127.0.1.1\ttechnexion" >> /etc/hosts
+echo netico-technexion > /etc/hostname
+echo -e "127.0.1.1\tnetico-technexion" >> /etc/hosts
 echo -e "nameserver\t8.8.8.8" >> /etc/hosts
 
 (echo "root"; echo "root";) | passwd
@@ -29,7 +29,7 @@ yes "Y" | sudo apt-get update
 yes "Y" | sudo apt-get upgrade
 yes "Y" | sudo apt --fix-broken install
 yes "Y" | apt install openssh-server iw wpasupplicant hostapd util-linux procps iproute2 haveged dnsmasq iptables net-tools ppp ntp ntpdate bridge-utils can-utils v4l-utils usbutils
-yes "Y" | apt install bash-completion ifupdown resolvconf alsa-utils gpiod cloud-utils libpolkit-agent-1-0 libpolkit-gobject-1-0 policykit-1 udhcpc rng-tools
+yes "Y" | apt install bash-completion ifupdown resolvconf alsa-utils gpiod cloud-utils libpolkit-agent-1-0 libpolkit-gobject-1-0 policykit-1 udhcpc rng-tools vim
 
 #install docker-ce
 yes "Y" | apt install gnupg apt-transport-https ca-certificates curl software-properties-common
@@ -120,7 +120,7 @@ sudo systemctl enable rc-local.service
 sudo systemctl disable serial-qcabtfw
 sudo systemctl disable bluetooth
 
-# disable initail failed relate services
+# disable initial failed relate services
 sudo systemctl disable hostapd.service
 sudo systemctl disable dnsmasq.service
 
