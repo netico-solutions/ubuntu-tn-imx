@@ -10,6 +10,11 @@ KERNEL_COMMIT  := a43c5db21a5f17b9f13e94fc7814697fc48b981d
 KERNEL_GIT     := git@github.com:netico-solutions/linux-tn-imx.git
 KERNEL_ARCHIVE := https://github.com/TechNexion/linux-tn-imx/archive/$(KERNEL_COMMIT).tar.gz
 
+QCACLD_BRANCH := tn-CNSS.LEA.NRT_3.0
+#QCACLD_COMMIT := `git ls-remote https://github.com/TechNexion/qcacld-2.0.git $(QCACLD_BRANCH) | awk '{print $$1}'`
+QCACLD_COMMIT := $(shell git ls-remote https://github.com/TechNexion/qcacld-2.0.git $(QCACLD_BRANCH) | awk '{print $$1}')
+QCACLD_ARCHIVE := https://github.com/TechNexion/qcacld-2.0/archive/$(QCACLD_COMMIT).tar.gz
+
 ifeq ($(PLATFORM),edm-g-imx8mp)
 KERNEL_DEFCONFIG := tn_imx8_defconfig
 $(eval ARCH := arm64)
@@ -58,10 +63,6 @@ $(eval CC := arm-linux-gnueabi-)
 
 endif
 
-QCACLD_BRANCH := tn-CNSS.LEA.NRT_3.0
-QCACLD_COMMIT := `git ls-remote https://github.com/TechNexion/qcacld-2.0.git $(QCACLD_BRANCH) | awk '{print $$1}'`
-QCACLD_ARCHIVE := https://github.com/TechNexion/qcacld-2.0/archive/$(QCACLD_COMMIT).tar.gz
-
 all: build
 
 clean:
@@ -90,12 +91,13 @@ build: src
 src:
 	mkdir -p $(KERNEL_DIR)
 	if [ ! -f $(KERNEL_DIR)/linux-tn-imx/Makefile ] ; then \
-		echo "${QCACLD_ARCHIVE}" \
-		curl -L $(QCACLD_ARCHIVE) | tar xz && \
-		mv qcacld-2.0* $(KERNEL_DIR)/qcacld-2.0 \
 		cd $(KERNEL_DIR) && \
 		git clone ${KERNEL_GIT} && \
 		cd - ; \
+	fi
+	if [ ! -d $(KERNEL_DIR)/qcacld-2.0 ] ; then \
+		curl -L $(QCACLD_ARCHIVE) | tar xz && \
+		mv qcacld-2.0* $(KERNEL_DIR)/qcacld-2.0 ; \
 	fi
 
 .PHONY: build
