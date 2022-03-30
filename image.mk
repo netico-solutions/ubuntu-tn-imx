@@ -14,7 +14,7 @@ clean:
 distclean: clean
 
 build-image:
-ifeq ($(PLAFORM),edm-g-imx8mp)
+ifeq ($(PLATFORM),edm-g-imx8mp)
 	$(eval TARGET := edm-g-imx8mp)
 else ifeq ($(PLATFORM),pico-imx6)
 	$(eval TARGET := pico-imx6)
@@ -38,7 +38,7 @@ else ifeq ($(PLATFORM),tc1010-imx6)
 	$(eval TARGET := tc1010-imx6)
 endif
 
-	@echo "image generating..."
+	@echo "image generating PLATFORM = $(PLATFORM), TARGET = $(TARGET)..."
 	./gen_image.sh $(TARGET)
 	@mv test.img $(OUTPUT_DIR)/$(DEFAULT_IMAGE)
 

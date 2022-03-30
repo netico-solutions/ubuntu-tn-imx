@@ -4,6 +4,8 @@ TOP=${PWD}
 
 echo "target: --------------> $1"
 
+echo "lazar $1"
+
 if [[ "$(echo "$1" | grep "imx8")" ]]; then
   echo "creating 3.8GiB empty image ..."
   sudo dd if=/dev/zero of=test.img bs=1M count=3800
@@ -14,20 +16,32 @@ fi
 
 echo "created."
 
+echo ""
+echo "================ Creating partition table and filesystems.... ================"
+echo ""
+
 sudo kpartx -av test.img
-loop_dev=$(losetup | grep "test.img" | awk  '{print $1}')
+loop_dev=$(sudo losetup | grep "test.img" | awk  '{print $1}')
 (echo "n"; echo "p"; echo; echo "16385"; echo "+32M"; echo "n"; echo "p"; echo; echo "81920"; echo ""; echo "a"; echo "1"; echo "w";) | sudo fdisk "$loop_dev"
 sudo kpartx -d test.img
 sync
 
 sudo kpartx -av test.img
-loop_dev=$(losetup | grep "test.img" | awk  '{print $1}')
-mapper_dev=$(losetup | grep "test.img" | awk  '{print $1}' | awk -F/ '{print $3}')
+loop_dev=$(sudo losetup | grep "test.img" | awk  '{print $1}')
+mapper_dev=$(sudo losetup | grep "test.img" | awk  '{print $1}' | awk -F/ '{print $3}')
 
-sudo mkfs.vfat -F 32 /dev/mapper/"$mapper_dev"p1
-sudo mkfs.ext4 /dev/mapper/"$mapper_dev"p2
+sudo mkfs.vfat -F 32 /dev/mapper/"$mapper_dev"p1 -n BOOT_IMX8MP
+sudo mkfs.ext4 /dev/mapper/"$mapper_dev"p2 -L rootfs
+
+echo ""
+echo "================ Done creating partition table and filesystems.... ================"
+echo ""
 
 mkdir mnt
+
+echo ""
+echo "================ Copying files to BOOT partition.... ================"
+echo ""
 
 sudo mount /dev/mapper/"$mapper_dev"p1 mnt
 
@@ -137,11 +151,21 @@ elif [[ "$1" == "tc1010-imx6" ]]; then
   sudo cp -rv ./output/kernel/linux-tn-imx/arch/arm/boot/dts/imx6dl-edm1-tc1000-qca.dtb mnt/
 fi
 
+echo ""
+echo "================ Done copying files to BOOT partition.... ================"
+echo ""
+
 sudo umount mnt
 
 sudo mount /dev/mapper/"$mapper_dev"p2 mnt
 cd mnt
-sudo tar zxvf ../output/rootfs.tgz
+
+echo ""
+echo "================ Copying files to rootfs partition.... ================"
+echo ""
+
+sudo tar zxf ../output/rootfs.tgz
+#sudo tar zxvf ../output/rootfs.tgz
 cd ${TOP}
 sudo cp -rv ./output/kernel/linux-tn-imx/modules/lib/modules/* mnt/lib/modules/
 
@@ -149,7 +173,15 @@ if [[ "$1" == "edm-g-imx8mm" ]] || [[ "$1" == "edm-g-imx8mp" ]]; then
   sudo sed -i '52 s/.*//' ./mnt/usr/share/weston/examples/weston.800.ini
 fi
 
+echo ""
+echo "================ Done copying files to rootfs partition.... ================"
+echo ""
+
 sudo umount mnt
+
+echo ""
+echo "================ Flashing U-boot to BOOT partition.... ================"
+echo ""
 
 if [[ "$(echo "$1" | grep "imx8")" ]]; then
   if [[ "$1" == "pico-imx8mm" ]] || [[ "$1" == "edm-imx8m" ]] || [[ "$1" == "pico-imx8m" ]] || [[ "$1" == "edm-g-imx8mm" ]]; then
@@ -157,6 +189,9 @@ if [[ "$(echo "$1" | grep "imx8")" ]]; then
   elif [[ "$1" == "axon-e-imx8mp" ]] || [[ "$1" == "edm-g-imx8mp" ]]; then
     bootloader_offset=32
   fi
+  echo ""
+  echo "======== Bootloader offset: $bootloader_offset ========"
+  echo ""
   sudo dd if=./output/u-boot/u-boot-tn-imx/imx-mkimage/iMX8M/flash.bin of="$loop_dev" bs=1k seek="$bootloader_offset" conv=fsync
   sync
 else
@@ -190,6 +225,10 @@ else
   sudo umount mnt
 fi
 
-rm -rf mnt
+echo ""
+echo "================ Done flashing U-boot to BOOT partition.... ================"
+echo ""
+
+sudo rm -rf mnt
 
 sudo kpartx -d test.img
