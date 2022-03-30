@@ -1,6 +1,15 @@
 #!/bin/bash
 
 TOP=${PWD}
+UBUNTU_VER=20.04
+if [ "$UBUNTU_VER" == "20.04" ] ; then
+	UBUNTU_NAME="focal"
+elif [ "$UBUNTU_VER" == "22.04" ] ; then
+	UBUNTU_NAME="jammy"
+else
+	echo "Unsupported UBUNTU version!"
+	exit
+fi
 
 # generate minimum rootfs
 gen_pure_rootfs() {
@@ -16,15 +25,25 @@ gen_pure_rootfs() {
   fi
 
   if [ ! -d rootfs_overlay ] ; then
-    wget -c -t 0 --timeout=60 --waitretry=60 https://download.technexion.com/development_resources/NXP/ubuntu/22.04/proprietary-package/"$proprietary"-jammy-proprietary.tar.gz
-    tar zxvf "$proprietary"-jammy-proprietary.tar.gz
-    rm ./"$proprietary"-jammy-proprietary.tar.gz
+  	if [ "$UBUNTU_VER" == "20.04" ] ; then
+  		# It must be "focol" in the link, not "focal" because TechNexion made a mistake naming the archive
+		wget -c -t 0 --timeout=60 --waitretry=60 https://download.technexion.com/development_resources/NXP/ubuntu/"$UBUNTU_VER"/proprietary-package/"$proprietary"-focol-proprietary.tar.gz
+		tar zxvf "$proprietary"-focol-proprietary.tar.gz
+    		rm ./"$proprietary"-focol-proprietary.tar.gz
+	elif [ "$UBUNTU_VER" == "22.04" ] ; then
+		wget -c -t 0 --timeout=60 --waitretry=60 https://download.technexion.com/development_resources/NXP/ubuntu/"$UBUNTU_VER"/proprietary-package/"$proprietary"-"$UBUNTU_NAME"-proprietary.tar.gz
+		tar zxvf "$proprietary"-"$UBUNTU_NAME"-proprietary.tar.gz
+    		rm ./"$proprietary"-"$UBUNTU_NAME"-proprietary.tar.gz
+    	fi
+    #wget -c -t 0 --timeout=60 --waitretry=60 https://download.technexion.com/development_resources/NXP/ubuntu/22.04/proprietary-package/"$proprietary"-jammy-proprietary.tar.gz
+    #tar zxvf "$proprietary"-"$UBUNTU_NAME"-proprietary.tar.gz
+    #rm ./"$proprietary"-"$UBUNTU_NAME"-proprietary.tar.gz
   fi
 
-  mkdir rootfs
+  mkdir -p rootfs
 
   echo "generate ubuntu rootfs... default version: focal LTS"
-  sudo debootstrap --arch="$ARCH" --keyring=/usr/share/keyrings/ubuntu-archive-keyring.gpg --verbose --foreign jammy ${TOP}/rootfs
+  sudo debootstrap --arch="$ARCH" --keyring=/usr/share/keyrings/ubuntu-archive-keyring.gpg --verbose --foreign $UBUNTU_NAME ${TOP}/rootfs
   sudo cp /usr/bin/"$QEMU" ${TOP}/rootfs/usr/bin
   sudo LANG=C chroot ${TOP}/rootfs /debootstrap/debootstrap --second-stage
 
