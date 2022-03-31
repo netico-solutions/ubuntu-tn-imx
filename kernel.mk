@@ -74,8 +74,8 @@ distclean: clean
 	rm -rf $(wildcard $(KERNEL_DIR/linux-tn-imx))
 
 build: src
-	echo CONFIG_DRM_LEGACY=y >> $(KERNEL_DIR)/linux-tn-imx/arch/arm/configs/$(KERNEL_DEFCONFIG)
-	echo CONFIG_DRM_VIVANTE=y >> $(KERNEL_DIR)/linux-tn-imx/arch/${ARCH}/configs/$(KERNEL_DEFCONFIG)
+	#echo CONFIG_DRM_LEGACY=y >> $(KERNEL_DIR)/linux-tn-imx/arch/arm/configs/$(KERNEL_DEFCONFIG)
+	#echo CONFIG_DRM_VIVANTE=y >> $(KERNEL_DIR)/linux-tn-imx/arch/${ARCH}/configs/$(KERNEL_DEFCONFIG)
 	$(MAKE) ARCH=${ARCH} CROSS_COMPILE=${CC} -C $(KERNEL_DIR)/linux-tn-imx $(KERNEL_DEFCONFIG)
 	$(MAKE) ARCH=${ARCH} CROSS_COMPILE=${CC} -C $(KERNEL_DIR)/linux-tn-imx -j$(CPUS) all
 	$(MAKE) ARCH=${ARCH} CROSS_COMPILE=${CC} -C $(KERNEL_DIR)/linux-tn-imx -j$(CPUS) dtbs
