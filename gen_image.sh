@@ -22,7 +22,7 @@ echo ""
 
 sudo kpartx -av test.img
 loop_dev=$(sudo losetup | grep "test.img" | awk  '{print $1}')
-(echo "n"; echo "p"; echo; echo "16385"; echo "+32M"; echo "n"; echo "p"; echo; echo "81920"; echo ""; echo "a"; echo "1"; echo "w";) | sudo fdisk "$loop_dev"
+(echo "n"; echo "p"; echo; echo "16385"; echo "+170394"; echo "n"; echo "p"; echo; echo "196609"; echo ""; echo "a"; echo "1"; echo "w";) | sudo fdisk "$loop_dev"
 sudo kpartx -d test.img
 sync
 
@@ -30,7 +30,7 @@ sudo kpartx -av test.img
 loop_dev=$(sudo losetup | grep "test.img" | awk  '{print $1}')
 mapper_dev=$(sudo losetup | grep "test.img" | awk  '{print $1}' | awk -F/ '{print $3}')
 
-sudo mkfs.vfat -F 32 /dev/mapper/"$mapper_dev"p1 -n BOOT_IMX8MP
+sudo mkfs.vfat -F 16 /dev/mapper/"$mapper_dev"p1 -n BOOT_IMX8MP
 sudo mkfs.ext4 /dev/mapper/"$mapper_dev"p2 -L rootfs
 
 echo ""
