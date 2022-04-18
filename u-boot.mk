@@ -27,7 +27,7 @@ ifeq ($(PLATFORM),edm-g-imx8mp)
 	$(eval CC := aarch64-linux-gnu-)
 	$(eval ATF_OPTION := imx8mp-edm-g)
 	# Before compiling U-boot, install NXP imx8m firmware
-	yes | ARCH=$(ARCH) CROSS_COMPILE=$(CC) ./install_uboot_imx8_firmware.sh -b $(ATF_OPTION).dtb -d /dev/null
+	#yes | ARCH=$(ARCH) CROSS_COMPILE=$(CC) ./install_uboot_imx8_firmware.sh -b $(ATF_OPTION).dtb -d /dev/null
 else ifeq ($(PLATFORM),pico-imx6)
 	$(eval UBOOT_DEFCONFIG := pico-imx6_spl_defconfig)
 	$(eval ARCH := arm)

@@ -5,7 +5,7 @@
 
 include common.mk
 
-# tn-imx_5.4.70_2.3.0-next-netico is the default branch we use
+# tn-imx_5.4.72_2.2.0-next-netico is the default branch we use
 KERNEL_COMMIT  := a43c5db21a5f17b9f13e94fc7814697fc48b981d
 KERNEL_GIT     := git@github.com:netico-solutions/linux-tn-imx.git
 KERNEL_ARCHIVE := https://github.com/TechNexion/linux-tn-imx/archive/$(KERNEL_COMMIT).tar.gz
